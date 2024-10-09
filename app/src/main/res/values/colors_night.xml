@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- White for night mode -->
+
+    <color name="background_night">#121212</color><!-- Dark background for night mode -->
+</resources>
+

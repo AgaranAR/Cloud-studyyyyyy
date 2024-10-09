@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -43,11 +44,9 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Set the toolbar as the app bar for the activity
-        setSupportActionBar(binding.toolbar);
-
-        // Initialize the Switch
-        switcher = findViewById(R.id.switcher);  // Ensure this matches the ID in your XML layout
+        // Initialize UI components after setContentView
+        switcher = findViewById(R.id.switcher);
+        searchBox = findViewById(R.id.search_box); // Initialize EditText here
 
         // Setup SharedPreferences to store theme preference
         sharedPreferences = getSharedPreferences("MODE", Context.MODE_PRIVATE);
@@ -60,21 +59,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Set an onClickListener for the switch
-        switcher.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (nightMODE) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    editor = sharedPreferences.edit();
-                    editor.putBoolean("night", false); // Save preference for no night mode
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    editor = sharedPreferences.edit();
-                    editor.putBoolean("night", true); // Save preference for night mode
-                }
-                editor.apply(); // Apply the changes
-                nightMODE = !nightMODE; // Toggle the night mode flag
+        switcher.setOnClickListener(view -> {
+            if (nightMODE) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                editor = sharedPreferences.edit();
+                editor.putBoolean("night", false); // Save preference for no night mode
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                editor = sharedPreferences.edit();
+                editor.putBoolean("night", true); // Save preference for night mode
             }
+            editor.apply(); // Apply the changes
+            nightMODE = !nightMODE; // Toggle the night mode flag
+
+            // Update UI elements based on the new theme
+            updateUIElements();
         });
 
         // Initialize RecyclerView and Adapter
@@ -90,8 +89,7 @@ public class MainActivity extends AppCompatActivity {
         adapter = new CourseAdapter(courseList);
         recyclerView.setAdapter(adapter);
 
-        // Initialize search box
-        searchBox = findViewById(R.id.search_box);
+        // Initialize search box with a TextWatcher
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -107,19 +105,30 @@ public class MainActivity extends AppCompatActivity {
 
         // FAB action for adding a course
         FloatingActionButton fabAddCourse = findViewById(R.id.fabAddCourse);
-        fabAddCourse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Add Course functionality to be implemented", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null)
-                        .show();
-            }
+        fabAddCourse.setOnClickListener(view -> {
+            Snackbar.make(view, "Add Course functionality to be implemented", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null)
+                    .show();
         });
+
+        // Update UI elements based on initial theme
+        updateUIElements();
+    }
+
+    private void updateUIElements() {
+        // Update EditText text color based on night mode
+        if (nightMODE) {
+            searchBox.setTextColor(getResources().getColor(R.color.white)); // Text color for night mode
+        } else {
+            searchBox.setTextColor(getResources().getColor(R.color.black)); // Text color for bright mode
+        }
+
+        // No changes to the background color of the search box
+        // You can also update RecyclerView item colors here if needed
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }

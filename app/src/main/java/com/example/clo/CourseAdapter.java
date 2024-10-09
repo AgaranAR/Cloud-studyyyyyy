@@ -17,10 +17,12 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
 
     private List<String> courseList;
     private List<String> courseListFull; // Full list for filtering
+    private boolean nightMode; // To track the current mode
 
     public CourseAdapter(List<String> courseList) {
         this.courseList = courseList;
-        courseListFull = new ArrayList<>(courseList); // Create a full list copy
+        this.courseListFull = new ArrayList<>(courseList); // Create a full list copy
+        this.nightMode = nightMode; // Set initial mode
     }
 
     @NonNull
@@ -34,6 +36,15 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
     public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
         String currentCourse = courseList.get(position);
         holder.courseTextView.setText(currentCourse);
+
+        // Set text and background color based on night mode
+        if (nightMode) {
+            holder.itemView.setBackgroundColor(holder.itemView.getResources().getColor(R.color.background_night));
+            holder.courseTextView.setTextColor(holder.itemView.getResources().getColor(R.color.white));
+        } else {
+            holder.itemView.setBackgroundColor(holder.itemView.getResources().getColor(R.color.background_bright));
+            holder.courseTextView.setTextColor(holder.itemView.getResources().getColor(R.color.black));
+        }
     }
 
     @Override
@@ -69,6 +80,12 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
                 notifyDataSetChanged();
             }
         };
+    }
+
+    // Method to update the night mode status
+    public void setNightMode(boolean nightMode) {
+        this.nightMode = nightMode;
+        notifyDataSetChanged(); // Refresh the view
     }
 
     public static class CourseViewHolder extends RecyclerView.ViewHolder {
