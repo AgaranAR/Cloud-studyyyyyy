@@ -9,4 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#808080</color>
     <color name="darkGrey"> #A9A9A9</color>
+    <color name="text_color">#000000</color> <!-- Black for bright mode -->
+    <color name="background_color">#FFFFFF</color>
+    <color name="background_bright">#FFFFFF</color>
 </resources>
