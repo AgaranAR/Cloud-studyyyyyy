@@ -13,38 +13,27 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseViewHolder> implements Filterable {
+public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder> implements Filterable {
 
     private List<String> courseList;
     private List<String> courseListFull; // Full list for filtering
-    private boolean nightMode; // To track the current mode
 
     public CourseAdapter(List<String> courseList) {
         this.courseList = courseList;
-        this.courseListFull = new ArrayList<>(courseList); // Create a full list copy
-        this.nightMode = nightMode; // Set initial mode
+        courseListFull = new ArrayList<>(courseList); // Create a copy for filtering
     }
 
     @NonNull
     @Override
-    public CourseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
-        return new CourseViewHolder(view);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String currentCourse = courseList.get(position);
         holder.courseTextView.setText(currentCourse);
-
-        // Set text and background color based on night mode
-        if (nightMode) {
-            holder.itemView.setBackgroundColor(holder.itemView.getResources().getColor(R.color.background_night));
-            holder.courseTextView.setTextColor(holder.itemView.getResources().getColor(R.color.white));
-        } else {
-            holder.itemView.setBackgroundColor(holder.itemView.getResources().getColor(R.color.background_bright));
-            holder.courseTextView.setTextColor(holder.itemView.getResources().getColor(R.color.black));
-        }
     }
 
     @Override
@@ -62,9 +51,9 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
                     filteredList.addAll(courseListFull); // No filter applied
                 } else {
                     String filterPattern = constraint.toString().toLowerCase().trim();
-                    for (String course : courseListFull) {
-                        if (course.toLowerCase().contains(filterPattern)) {
-                            filteredList.add(course);
+                    for (String item : courseListFull) {
+                        if (item.toLowerCase().contains(filterPattern)) {
+                            filteredList.add(item);
                         }
                     }
                 }
@@ -82,16 +71,10 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         };
     }
 
-    // Method to update the night mode status
-    public void setNightMode(boolean nightMode) {
-        this.nightMode = nightMode;
-        notifyDataSetChanged(); // Refresh the view
-    }
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView courseTextView;
 
-    public static class CourseViewHolder extends RecyclerView.ViewHolder {
-        public TextView courseTextView;
-
-        public CourseViewHolder(@NonNull View itemView) {
+        public ViewHolder(View itemView) {
             super(itemView);
             courseTextView = itemView.findViewById(android.R.id.text1);
         }
