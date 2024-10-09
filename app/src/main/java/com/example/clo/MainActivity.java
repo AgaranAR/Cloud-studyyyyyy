@@ -113,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
         // FAB action for adding a course
         FloatingActionButton fabAddCourse = findViewById(R.id.fabAddCourse);
         fabAddCourse.setOnClickListener(view -> {
+            addCategory(coursename);
+
             Snackbar.make(view, "Add Course functionality to be implemented", Snackbar.LENGTH_LONG)
                     .setAction("Action", null)
                     .show();
@@ -158,5 +160,21 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+    private void addCategory(String categoryName) {
+
+        String[] insideCategory = {"qp", "links", "Study materials", "Books"};
+        DatabaseReference subjectRef = databaseRef.child(categoryName);
+
+        // Loop through each inside category
+        for (String s : insideCategory) {
+            subjectRef.child(s).setValue("pending").addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, "Submitted", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Submission failed", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 }
