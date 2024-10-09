@@ -69,15 +69,11 @@
             <!-- RecyclerView for the Course List -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
-                android:layout_width="0dp"
-                android:layout_height="500dp"
-                android:background="@android:color/white"
-                app:layout_constraintTop_toBottomOf="@id/search_box"
-                app:layout_constraintBottom_toTopOf="@id/fabAddCourse"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_margin="16dp"
-                tools:ignore="NotSibling" />
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="130dp"
+                android:clipToPadding="false"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
             <!-- Floating Action Button -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
