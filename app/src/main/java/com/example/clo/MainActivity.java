@@ -1,15 +1,11 @@
 package com.example.clo;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
 import android.widget.EditText;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.clo.databinding.ActivityMainBinding;
@@ -22,7 +18,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,10 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    Switch switcher;
-    boolean nightMODE;
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
     private ActivityMainBinding binding;
 
     // Sample data for RecyclerView
@@ -55,36 +46,7 @@ public class MainActivity extends AppCompatActivity {
         databaseRef = FirebaseDatabase.getInstance().getReference("category");
 
         // Initialize UI components after setContentView
-        switcher = findViewById(R.id.switcher);
         searchBox = findViewById(R.id.search_box);
-
-        // Setup SharedPreferences to store theme preference
-        sharedPreferences = getSharedPreferences("MODE", Context.MODE_PRIVATE);
-        nightMODE = sharedPreferences.getBoolean("night", false); // Default is false
-
-        // Apply night mode based on the preference
-        if (nightMODE) {
-            switcher.setChecked(true); // Set switch checked if night mode is enabled
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        }
-
-        // Set an onClickListener for the switch
-        switcher.setOnClickListener(view -> {
-            if (nightMODE) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                editor = sharedPreferences.edit();
-                editor.putBoolean("night", false); // Save preference for no night mode
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                editor = sharedPreferences.edit();
-                editor.putBoolean("night", true); // Save preference for night mode
-            }
-            editor.apply(); // Apply the changes
-            nightMODE = !nightMODE; // Toggle the night mode flag
-
-            // Update UI elements based on the new theme
-            updateUIElements();
-        });
 
         // Initialize RecyclerView and Adapter
         recyclerView = findViewById(R.id.recyclerView);
@@ -117,9 +79,6 @@ public class MainActivity extends AppCompatActivity {
                     .setAction("Action", null)
                     .show();
         });
-
-        // Update UI elements based on initial theme
-        updateUIElements();
     }
 
     private void loadCourses() {
@@ -143,15 +102,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Error getting documents: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void updateUIElements() {
-        // Update EditText colors based on night mode
-        if (nightMODE) {
-            searchBox.setTextColor(getResources().getColor(R.color.white));
-        } else {
-            searchBox.setTextColor(getResources().getColor(R.color.black));
-        }
     }
 
     @Override
