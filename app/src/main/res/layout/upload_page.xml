@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    tools:context=".upload_file">
 
     <!-- Title for the page -->
     <TextView
@@ -23,7 +24,6 @@
         android:layout_height="wrap_content"
         android:hint="File Name"
         android:inputType="text"
-        android:textColor="@color/black"
         android:padding="12dp"
         android:layout_marginBottom="16dp"
         android:background="@android:drawable/editbox_background" />
@@ -34,7 +34,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Author Name"
-        android:textColor="@color/black"
         android:inputType="text"
         android:padding="12dp"
         android:layout_marginBottom="16dp"
@@ -58,10 +57,19 @@
         android:layout_marginBottom="24dp" />
 
     <!-- Upload button -->
+    <ProgressBar
+        android:id="@+id/upload_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:visibility="gone" />
+
     <Button
         android:id="@+id/upload_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Upload" />
+        android:text="Upload"
+        />
 
 </LinearLayout>
