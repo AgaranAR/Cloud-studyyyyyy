@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         Button addsubdone = findViewById(R.id.addsubdone);
-        // Initialize Firebase Realtime Database
+        // Iniv tialize Firebase Realtime Database
         databaseRef = FirebaseDatabase.getInstance().getReference("category");
         EditText add = findViewById(R.id.add);
 
