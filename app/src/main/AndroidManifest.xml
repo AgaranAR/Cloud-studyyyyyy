@@ -12,6 +12,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Clo"
         tools:targetApi="31">
+        <activity android:name=".UploadFileActivity">
+            <!-- If you want to specify launch mode, you can do it here -->
+            <!-- <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter> -->
+        </activity>
+        <activity android:name=".SubjectListActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-    Switch switcher;
+    private Switch switcher;
     boolean nightMODE;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -49,6 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+// Access the Switch through the binding object
+        switcher = binding.switcher;
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
