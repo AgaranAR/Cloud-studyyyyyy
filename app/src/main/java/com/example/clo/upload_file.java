@@ -13,6 +13,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -25,7 +28,8 @@ public class upload_file extends AppCompatActivity {
     private TextView filePathTextView;
     private Uri fileUri;
 
-   private Button chooseFIleButton;
+    private DatabaseReference databaseReference; // Database Reference
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +41,9 @@ public class upload_file extends AppCompatActivity {
         chooseFileButton = findViewById(R.id.choose_file_button);
         filePathTextView = findViewById(R.id.file_path_display);
         uploadButton = findViewById(R.id.upload_button);
+
+        // Initialize Firebase Database reference
+        databaseReference = FirebaseDatabase.getInstance().getReference("OperatingSystem");
 
         // Set onClick listener for choosing a file
         chooseFileButton.setOnClickListener(view -> openFileChooser());
@@ -69,7 +76,17 @@ public class upload_file extends AppCompatActivity {
                         // Get the download URL
                         fileReference.getDownloadUrl().addOnSuccessListener(uri -> {
                             String downloadUrl = uri.toString();
-                            // Save downloadUrl to your database if needed
+
+                            // Save downloadUrl to the database under "Operating System" category
+                            String fileId = databaseReference.push().getKey(); // Generate unique ID for the file
+                            databaseReference.child(fileId).setValue(downloadUrl)
+                                    .addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(upload_file.this, "File URL saved to database", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(upload_file.this, "Failed to save file URL to database", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                         });
                     })
                     .addOnFailureListener(e -> {
@@ -82,9 +99,7 @@ public class upload_file extends AppCompatActivity {
                     .addOnProgressListener(snapshot -> {
                         // Update ProgressBar percentage
                         double progress = (100.0 * snapshot.getBytesTransferred()) / snapshot.getTotalByteCount();
-                        // Update the progress of the upload in real-time
                         progressBar.setProgress((int) progress);
-
                     });
         } else {
             Toast.makeText(this, "No file selected", Toast.LENGTH_SHORT).show();
@@ -96,7 +111,6 @@ public class upload_file extends AppCompatActivity {
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(fileUri));
     }
-
 
     private void openFileChooser() {
         Intent pdfintent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -115,12 +129,6 @@ public class upload_file extends AppCompatActivity {
             // Get the file path (can be displayed to the user)
             String filePath = fileUri.getPath();
             filePathTextView.setText(filePath);
-
-            // Now proceed to upload the file (to Firebase, server, etc.)
-
         }
     }
-
-
 }
-
