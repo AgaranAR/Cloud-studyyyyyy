@@ -1,5 +1,7 @@
-package com.example.clo;
+package com.example.clo;  // Update this to match your package name
 
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,28 +14,26 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder> implements Filterable {
+public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseViewHolder> {
 
-    private List<String> courseList;
-    private List<String> courseListFull; // Full list for filtering
+    private List<Course> courseList;
 
-    public CourseAdapter(List<String> courseList) {
+    public CourseAdapter(List<Course> courseList) {
         this.courseList = courseList;
-        courseListFull = new ArrayList<>(courseList); // Create a copy for filtering
-    }
-
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
-        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String currentCourse = courseList.get(position);
-        holder.courseTextView.setText(currentCourse);
+    public CourseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_content, parent, false);
+        return new CourseViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(CourseViewHolder holder, int position) {
+        Course course = courseList.get(position);
+        holder.bind(course);
     }
 
     @Override
@@ -41,42 +41,24 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
         return courseList.size();
     }
 
-    @Override
-    public Filter getFilter() {
-        return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
-                List<String> filteredList = new ArrayList<>();
-                if (constraint == null || constraint.length() == 0) {
-                    filteredList.addAll(courseListFull); // No filter applied
-                } else {
-                    String filterPattern = constraint.toString().toLowerCase().trim();
-                    for (String item : courseListFull) {
-                        if (item.toLowerCase().contains(filterPattern)) {
-                            filteredList.add(item);
-                        }
-                    }
-                }
-                FilterResults results = new FilterResults();
-                results.values = filteredList;
-                return results;
-            }
+    public static class CourseViewHolder extends RecyclerView.ViewHolder {
+        TextView courseNameTextView; // Declare the TextView
 
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-                courseList.clear();
-                courseList.addAll((List) results.values);
-                notifyDataSetChanged();
-            }
-        };
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView courseTextView;
-
-        public ViewHolder(View itemView) {
+        public CourseViewHolder(View itemView) {
             super(itemView);
-            courseTextView = itemView.findViewById(android.R.id.text1);
+
+            // Initialize the TextView
+            courseNameTextView = itemView.findViewById(R.id.course_names); // Ensure this ID exists in item_course.xml
+        }
+
+        public void bind(Course course) {
+            // Ensure courseNameTextView is not null before calling setText
+            if (courseNameTextView != null) {
+                courseNameTextView.setText(course.getName());
+            } else {
+                Log.e("CourseViewHolder", "courseNameTextView is null");
+            }
         }
     }
 }
+
