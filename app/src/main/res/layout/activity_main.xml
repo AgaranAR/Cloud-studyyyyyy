@@ -1,0 +1,66 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- Search Box -->
+    <EditText
+        android:id="@+id/search_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search courses"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+
+        android:textColor="@android:color/black"
+        android:textColorHint="@android:color/darker_gray"
+        android:inputType="text" />
+
+    <!-- RecyclerView for Courses -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/search_box"
+        android:layout_above="@id/fabAddCourse"
+        android:layout_marginTop="8dp"
+        android:padding="8dp" />
+
+    <!-- Floating Action Button for Adding Courses -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddCourse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+
+        app:backgroundTint="@color/background_bright"
+        app:tint="@android:color/white" />
+
+    <!-- EditText for Adding New Course -->
+    <EditText
+        android:id="@+id/add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter course name"
+        android:visibility="gone"
+        android:layout_above="@id/addsubdone"
+        android:padding="12dp"
+        android:layout_margin="16dp"
+
+        android:inputType="text" />
+
+    <!-- Button for Confirming New Course Addition -->
+    <Button
+        android:id="@+id/addsubdone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Done"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp" />
+</RelativeLayout>
