@@ -33,15 +33,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
     boolean nightMODE;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
     private ActivityMainBinding binding;
 
-    // Sample data for RecyclerView
-    private List<String> courseList;
+    // Modify courseList to hold Course objects
+    private List<Course> courseList;
     private RecyclerView recyclerView;
     private CourseAdapter adapter;
     private EditText searchBox;
@@ -55,16 +54,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         Button addsubdone = findViewById(R.id.addsubdone);
-        // Iniv tialize Firebase Realtime Database
+        // Initialize Firebase Realtime Database
         databaseRef = FirebaseDatabase.getInstance().getReference("category");
         EditText add = findViewById(R.id.add);
 
         // Initialize UI components after setContentView
-
         searchBox = findViewById(R.id.search_box);
 
         // Setup SharedPreferences to store theme preference
-
 
         // Set an onClickListener for the switch
 
@@ -75,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         courseList = new ArrayList<>();
-        adapter = new CourseAdapter(courseList);
+        adapter = new CourseAdapter(this ,courseList);
         recyclerView.setAdapter(adapter);
 
         // Load courses from Realtime Database
@@ -107,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     String categoryname = add.getText().toString().trim(); // Trim any extra whitespace
                     String categorynameupper = categoryname.toUpperCase();
-                    if (!categoryname.isEmpty() && !courseList.contains(categorynameupper)) { // Check if the category name is not empty
+                    if (!categoryname.isEmpty() && !courseList.contains(new Course(categorynameupper))) { // Check if the category name is not empty
                         addCategory(categorynameupper); // Call the method to add the category
                         add.setText(""); // Clear the input field after adding
                         add.setVisibility(View.GONE); // Optionally hide the input field
@@ -115,14 +112,11 @@ public class MainActivity extends AppCompatActivity {
                     } else if(categoryname.isEmpty()) {
                         Toast.makeText(MainActivity.this, "Category name cannot be empty", Toast.LENGTH_SHORT).show();
                     }
-                    else     if (courseList.contains(categorynameupper)){
+                    else     if (courseList.contains(new Course(categorynameupper))){
                         Toast.makeText(MainActivity.this, "Course already exists", Toast.LENGTH_SHORT).show();
                     }
-
                 }
             });
-
-
         });
         // Update UI elements based on initial theme
         updateUIElements();
@@ -137,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                     // Get the category name
                     String categoryName = categorySnapshot.getKey();
                     if (categoryName != null) {
-                        courseList.add(categoryName);
+                        courseList.add(new Course(categoryName)); // Add the Course object
                         Log.d("CategoryName", "Retrieved: " + categoryName); // Log category name
                     }
                 }
@@ -160,13 +154,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
     private void addCategory(String categoryName) {
-
         String[] insideCategory = {"qp", "links", "Study materials", "Books"};
         DatabaseReference subjectRef = databaseRef.child(categoryName);
 
@@ -190,6 +178,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-
     }
 }

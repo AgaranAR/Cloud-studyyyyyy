@@ -3,14 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="16dp"
-    android:background="@color/background_bright"> <!-- Default background -->
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/course_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Course Name"
+        android:textSize="18sp" />
+
+    <ImageView
+        android:id="@+id/menu_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Course Name"
-        android:textSize="18sp"
-        android:textColor="@color/black" /> <!-- Default text color -->
+        android:src="@android:drawable/ic_menu_more"
+    android:contentDescription="More Options"
+    android:layout_gravity="end" />
+
 </LinearLayout>
