@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,7 +23,7 @@ public class UploadFileActivity extends AppCompatActivity {
     private static final int PICK_FILE_REQUEST = 1;
 
     private EditText etSubjectName, etFileName;
-    private MaterialButton btnUpload;
+    private Button btnUpload;
     private Uri fileUri;
     private String selectedCategory;
 
@@ -60,7 +61,7 @@ public class UploadFileActivity extends AppCompatActivity {
 
     private void showCategorySelectionDialog() {
         // Simple dialog to choose category (Books, StudyMaterials, Links, QuestionPapers)
-        String[] categories = {"Books", "StudyMaterials", "Links", "QuestionPapers"};
+        String[] categories = {"Books", "Study materials", "links", "QuestionPapers"};
         new android.app.AlertDialog.Builder(this)
                 .setTitle("Select Category")
                 .setItems(categories, (dialog, which) -> {
@@ -89,38 +90,38 @@ public class UploadFileActivity extends AppCompatActivity {
         final String subjectName = etSubjectName.getText().toString().trim();
         final String fileName = etFileName.getText().toString().trim();
 
+        // Capitalize the subject name before uploading
+        final String capitalizedSubjectName = subjectName.toUpperCase();
+
         if (fileUri == null || TextUtils.isEmpty(subjectName) || TextUtils.isEmpty(fileName)) {
             Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Create a reference to Firebase Storage for the file upload
-        StorageReference fileReference = storageRef.child(selectedCategory).child(subjectName).child(fileName);
+        StorageReference fileReference = storageRef.child(selectedCategory).child(capitalizedSubjectName).child(fileName);
 
         fileReference.putFile(fileUri)
                 .addOnSuccessListener(taskSnapshot -> {
                     fileReference.getDownloadUrl().addOnSuccessListener(uri -> {
                         // File uploaded successfully, now save metadata to Firebase Realtime Database
-                        saveMetadataToDatabase(subjectName, fileName, uri.toString());
+                        saveFileUrlToDatabase(capitalizedSubjectName, fileName, uri.toString());
                     });
                 })
                 .addOnFailureListener(e -> Toast.makeText(UploadFileActivity.this, "Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void saveMetadataToDatabase(String subjectName, String fileName, String fileUrl) {
-        // Create metadata object to store
-        Map<String, Object> fileMetadata = new HashMap<>();
-        fileMetadata.put("fileName", fileName);
-        fileMetadata.put("fileUrl", fileUrl);
-        fileMetadata.put("category", selectedCategory);
-
-        // Add metadata under the subject name and category
-        databaseRef.child(subjectName).child(selectedCategory).child(fileName).setValue(fileMetadata)
+    private void saveFileUrlToDatabase(String subjectName, String fileName, String fileUrl) {
+        // Save the file URL directly under the filename, using the capitalized subject name
+        databaseRef.child(subjectName)
+                .child(selectedCategory)
+                .child(fileName) // Using the fileName as the key
+                .setValue(fileUrl) // Storing the fileUrl directly under the filename
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(UploadFileActivity.this, "File uploaded and metadata saved", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(UploadFileActivity.this, "File uploaded and URL saved", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(UploadFileActivity.this, "Failed to save metadata", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(UploadFileActivity.this, "Failed to save file URL", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
