@@ -1,25 +1,18 @@
 package com.example.clo;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.clo.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,17 +20,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    boolean nightMODE;
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
+
     private ActivityMainBinding binding;
 
     // Sample data for RecyclerView
@@ -45,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private CourseAdapter adapter;
     private EditText searchBox;
-
     private DatabaseReference databaseRef; // Reference to the Realtime Database
 
     @Override
@@ -53,29 +43,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        if (FirebaseApp.getApps(this).isEmpty()) {
+            FirebaseApp.initializeApp(this);
+        }
 
-        Button addsubdone = findViewById(R.id.addsubdone);
-        // Iniv tialize Firebase Realtime Database
+        // Initialize Firebase Realtime Database
         databaseRef = FirebaseDatabase.getInstance().getReference("category");
-        EditText add = findViewById(R.id.add);
 
         // Initialize UI components after setContentView
-
         searchBox = findViewById(R.id.search_box);
-
-        // Setup SharedPreferences to store theme preference
-
-
-        // Set an onClickListener for the switch
-
-        // Update UI elements based on the new theme
-        updateUIElements();
+        Button addsubdone = findViewById(R.id.addsubdone);
+        EditText add = findViewById(R.id.add);
 
         // Initialize RecyclerView and Adapter
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         courseList = new ArrayList<>();
-        adapter = new CourseAdapter(courseList);
+        adapter = new CourseAdapter(this, courseList);
         recyclerView.setAdapter(adapter);
 
         // Load courses from Realtime Database
@@ -88,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                adapter.getFilter().filter(s);
+                // Optionally filter the course list if needed
             }
 
             @Override
@@ -101,31 +85,23 @@ public class MainActivity extends AppCompatActivity {
             // Show the EditText for input
             add.setVisibility(View.VISIBLE);
             addsubdone.setVisibility(View.VISIBLE);
-            // Set a listener for when the user presses Enter
-            addsubdone.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String categoryname = add.getText().toString().trim(); // Trim any extra whitespace
-                    String categorynameupper = categoryname.toUpperCase();
-                    if (!categoryname.isEmpty() && !courseList.contains(categorynameupper)) { // Check if the category name is not empty
-                        addCategory(categorynameupper); // Call the method to add the category
-                        add.setText(""); // Clear the input field after adding
-                        add.setVisibility(View.GONE); // Optionally hide the input field
-                        addsubdone.setVisibility(View.GONE);
-                    } else if(categoryname.isEmpty()) {
-                        Toast.makeText(MainActivity.this, "Category name cannot be empty", Toast.LENGTH_SHORT).show();
-                    }
-                    else     if (courseList.contains(categorynameupper)){
-                        Toast.makeText(MainActivity.this, "Course already exists", Toast.LENGTH_SHORT).show();
-                    }
 
+            // Set a listener for when the user presses Enter
+            addsubdone.setOnClickListener(view1 -> {
+                String categoryname = add.getText().toString().trim(); // Trim any extra whitespace
+                String categorynameupper = categoryname.toUpperCase();
+                if (!categoryname.isEmpty() && !courseList.contains(categorynameupper)) { // Check if the category name is not empty
+                    addCategory(categorynameupper); // Call the method to add the category
+                    add.setText(""); // Clear the input field after adding
+                    add.setVisibility(View.GONE); // Optionally hide the input field
+                    addsubdone.setVisibility(View.GONE);
+                } else if (categoryname.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Category name cannot be empty", Toast.LENGTH_SHORT).show();
+                } else if (courseList.contains(categorynameupper)) {
+                    Toast.makeText(MainActivity.this, "Course already exists", Toast.LENGTH_SHORT).show();
                 }
             });
-
-
         });
-        // Update UI elements based on initial theme
-        updateUIElements();
     }
 
     private void loadCourses() {
@@ -151,22 +127,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void updateUIElements() {
-        // Update EditText colors based on night mode
-        if (nightMODE) {
-            searchBox.setTextColor(getResources().getColor(R.color.white));
-        } else {
-            searchBox.setTextColor(getResources().getColor(R.color.black));
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
     private void addCategory(String categoryName) {
-
         String[] insideCategory = {"qp", "links", "Study materials", "Books"};
         DatabaseReference subjectRef = databaseRef.child(categoryName);
 
@@ -190,6 +151,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-
     }
 }

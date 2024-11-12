@@ -58,7 +58,7 @@ public class SubjectsActivity extends AppCompatActivity {
                     boolean isFavorite = sharedPreferences.getBoolean(subjectName, false);
                     subjects.add(new Subject(subjectName, isFavorite));
                 }
-                adapter.setSubjects(subjects);
+//                adapter.setSubjects(subjects);
             }
 
             @Override

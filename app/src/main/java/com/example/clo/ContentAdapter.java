@@ -53,7 +53,7 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.ViewHold
 
         ViewHolder(View itemView) {
             super(itemView);
-            titleView = itemView.findViewById(R.id.course_name);
+            titleView = itemView.findViewById(R.id.courseNameTextView);
         }
     }
 }
