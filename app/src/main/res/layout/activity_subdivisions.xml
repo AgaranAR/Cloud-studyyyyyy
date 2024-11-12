@@ -1,0 +1,31 @@
+<!-- res/layout/activity_subdivisions.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/categoryTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Category Title"
+        android:textSize="20sp"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:id="@+id/subdivisionsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <!-- TextView to display selected subdivision details -->
+    <TextView
+        android:id="@+id/subdivisionDetailTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:padding="16dp"
+        android:text="Select a subdivision to see details" />
+
+</LinearLayout>
