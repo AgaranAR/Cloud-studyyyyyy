@@ -50,7 +50,21 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+
+    implementation (libs.circleimageview)
+
+    implementation (libs.picasso)
+
+
+
+    implementation(libs.okhttp)
+
+    implementation(libs.roundedimageview)
+
+    implementation(libs.kotlin.bom)
 }

@@ -12,4 +12,14 @@
     <color name="text_color">#000000</color> <!-- Black for bright mode -->
     <color name="background_color">#FFFFFF</color>
     <color name="background_bright">#FFFFFF</color>
+
+        <color name="my_primary">#5E35B1</color>
+        <color name="my_Secondary">#673AB7</color>
+
+        <color name="my_status">#9C27B0</color>
+        <color name="my_statusBar">#3E0B47</color>
+        <color name="start_color">#12c2e9</color>
+        <color name="mid_color">#c471ed</color>
+        <color name="end_color">#f64f59</color>
+
 </resources>

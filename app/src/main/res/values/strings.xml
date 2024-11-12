@@ -13,4 +13,13 @@
     <string name="all_course_page">ALL COURSE PAGE\n</string>
     <string name="submit">SUBMIT\n</string>
     <string name="download_pdf">"download "</string>
+    <string name="create_an_account">Create an account\n</string>
+    <string name="login">Login\n</string>
+    <string name="forgot_password">Forgot Password\n</string>
+    <string name="show_password">Show Password\n</string>
+    <string name="remember_me">Remember Me</string>
+    <string name="password">Password</string>
+    <string name="email">E-mail</string>
+    <string name="reset">Reset\n</string>
+    <string name="already_have_an_account">Already Have an account</string>
 </resources>

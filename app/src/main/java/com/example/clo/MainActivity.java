@@ -1,6 +1,7 @@
 package com.example.clo;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
@@ -91,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {}
         });
+        Button btnAllCourses = findViewById(R.id.btn_all_courses);
+        btnAllCourses.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, SubjectsActivity.class);
+            startActivity(intent);
+        });
 
         // FAB action for adding a course
         FloatingActionButton fabAddCourse = findViewById(R.id.fabAddCourse);
@@ -123,27 +129,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadCourses() {
-        databaseRef.addValueEventListener(new ValueEventListener() {
+        // Assuming the mockUserId is already available
+        String mockUserId = "mockUserId"; // Replace with actual logic to get the user ID
+
+        // Database reference pointing to the user's selectedSubjects
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(mockUserId).child("selectedSubjects");
+
+        userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                courseList.clear(); // Clear existing course list
-                for (DataSnapshot categorySnapshot : dataSnapshot.getChildren()) {
-                    // Get the category name
-                    String categoryName = categorySnapshot.getKey();
-                    if (categoryName != null) {
-                        courseList.add(new Course(categoryName)); // Add the Course object
-                        Log.d("CategoryName", "Retrieved: " + categoryName); // Log category name
+                courseList.clear(); // Clear the existing list
+                for (DataSnapshot subjectSnapshot : dataSnapshot.getChildren()) {
+                    String subject = subjectSnapshot.getValue(String.class); // Assuming subject is a string
+                    if (subject != null) {
+                        courseList.add(new Course(subject)); // Add to the course list
+                        Log.d("SubjectName", "Retrieved: " + subject); // Log the subject name
                     }
                 }
-                adapter.notifyDataSetChanged(); // Notify the adapter of data changes
+                adapter.notifyDataSetChanged(); // Notify adapter of data change
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(MainActivity.this, "Error getting documents: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Error getting data: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     private void updateUIElements() {
         // Update EditText colors based on night mode

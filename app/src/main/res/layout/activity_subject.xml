@@ -14,7 +14,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:title="Subjects"
-        app:titleTextColor="@android:color/white" />
+        app:titleTextColor="@android:color/white"
+
+        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"

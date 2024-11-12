@@ -1,0 +1,43 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<!--THIS IS FOR ALL COURSE PAGE-->
+    <!-- Toolbar with back arrow as an ImageView -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:layout_alignParentTop="true"
+        android:title="All Courses"
+        android:titleTextColor="@android:color/white">
+
+        <!-- Back arrow icon -->
+        <ImageView
+            android:id="@+id/backArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_back_arrow"
+            android:layout_gravity="start|center_vertical"
+            android:contentDescription="Back Arrow" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- RecyclerView below the toolbar -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/subjectsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/toolbar"
+        android:layout_above="@id/saveButton"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Save Button at the bottom -->
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp" />
+</RelativeLayout>
