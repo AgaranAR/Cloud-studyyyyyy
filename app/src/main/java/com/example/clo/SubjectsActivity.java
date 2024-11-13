@@ -49,11 +49,6 @@ public class SubjectsActivity extends AppCompatActivity {
         // Load subjects from Firebase
         loadSubjects();
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeButtonEnabled(true);
-        }
 
      // Update with your layout name
 
@@ -62,7 +57,6 @@ public class SubjectsActivity extends AppCompatActivity {
                 backArrow.setOnClickListener(v -> onBackPressed());
 
 
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
         // Save selected subjects to Firebase
         saveButton.setOnClickListener(view -> {
             List<String> selectedSubjects = subjectAdapter.getSelectedSubjects(); // Retrieve selected subjects
