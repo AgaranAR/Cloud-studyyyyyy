@@ -22,6 +22,6 @@
     <string name="email">E-mail</string>
     <string name="reset">Reset\n</string>
     <string name="already_have_an_account">Already Have an account</string>
-    <string name="enter_your_registered_email_address">Enter your registered email address</string>
     <string name="cancel">Cancel</string>
+    <string name="enter_your_registered_email_address">Enter your registered Email address</string>
 </resources>

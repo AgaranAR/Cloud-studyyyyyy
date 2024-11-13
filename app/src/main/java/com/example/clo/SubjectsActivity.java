@@ -50,11 +50,11 @@ public class SubjectsActivity extends AppCompatActivity {
         loadSubjects();
         Toolbar toolbar = findViewById(R.id.toolbar);
 
-     // Update with your layout name
+        // Update with your layout name
 
-                // Find the back arrow ImageView and set a click listener
-                ImageView backArrow = findViewById(R.id.backArrow);
-                backArrow.setOnClickListener(v -> onBackPressed());
+        // Find the back arrow ImageView and set a click listener
+        ImageView backArrow = findViewById(R.id.backArrow);
+        backArrow.setOnClickListener(v -> onBackPressed());
 
 
         // Save selected subjects to Firebase
