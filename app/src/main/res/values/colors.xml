@@ -13,13 +13,19 @@
     <color name="background_color">#FFFFFF</color>
     <color name="background_bright">#FFFFFF</color>
 
-        <color name="my_primary">#5E35B1</color>
-        <color name="my_Secondary">#673AB7</color>
-
-        <color name="my_status">#9C27B0</color>
-        <color name="my_statusBar">#3E0B47</color>
-        <color name="start_color">#12c2e9</color>
-        <color name="mid_color">#c471ed</color>
-        <color name="end_color">#f64f59</color>
+        <!-- Add these to your existing colors.xml -->
+        <color name="chip_active">#4CAF50</color>
+        <color name="chip_pending">#FFC107</color>
+        <color name="chip_inactive">#9E9E9E</color>
+    <array name="course_colors">
+        <item>#1976D2</item>
+        <item>#388E3C</item>
+        <item>#D32F2F</item>
+        <item>#7B1FA2</item>
+        <item>#FFA000</item>
+        <item>#0097A7</item>
+        <item>#C2185B</item>
+        <item>#689F38</item>
+    </array>
 
 </resources>

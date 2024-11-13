@@ -1,75 +1,155 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
-    <!-- Search Box -->
-    <EditText
-        android:id="@+id/search_box"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Search courses"
-        android:layout_marginTop="16dp"
-        android:padding="12dp"
+        android:layout_height="wrap_content">
 
-        android:textColor="@android:color/black"
-        android:textColorHint="@android:color/darker_gray"
-        android:inputType="text" />
-    <Button
-        android:id="@+id/btn_all_courses"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="All Courses"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="16dp"/>
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:title="Courses"
+            app:titleTextColor="@android:color/white"/>
 
-    <!-- RecyclerView for Courses -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_below="@id/search_box"
-        android:layout_above="@id/fabAddCourse"
-        android:layout_marginTop="8dp"
-        android:padding="8dp" />
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <!-- Floating Action Button for Adding Courses -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Search Box with Material Design -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/searchBoxLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                
+                app:endIconMode="clear_text"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search_box"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Search courses"
+                    android:inputType="text"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Progress Bar -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone"/>
+
+            <!-- RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/searchBoxLayout"
+                android:clipToPadding="false"
+                android:padding="8dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+            <!-- Empty State View -->
+            <LinearLayout
+                android:id="@+id/emptyStateView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+
+                    android:contentDescription="No courses found"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="No courses found"
+                    android:textAppearance="?attr/textAppearanceHeadline6"/>
+
+            </LinearLayout>
+
+            <!-- Add Course Layout -->
+            <LinearLayout
+                android:id="@+id/addCourseLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:background="@android:color/white"
+                android:elevation="8dp"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/add"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Enter course name"
+                        android:inputType="textCapWords"
+                        android:maxLines="1"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addsubdone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="8dp"
+                    android:text="Add Course"/>
+<!--                <Button-->
+<!--                    android:id="@+id/saveButton"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Save"-->
+<!--                    android:layout_centerHorizontal="true"-->
+<!--                    android:layout_alignParentBottom="true"-->
+<!--                    android:layout_marginBottom="20dp" />-->
+
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddCourse"
+        android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
+        android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
+        android:contentDescription="Add new course"
+        />
 
-        app:backgroundTint="@color/background_bright"
-        app:tint="@android:color/white" />
-
-    <!-- EditText for Adding New Course -->
-    <EditText
-        android:id="@+id/add"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter course name"
-        android:visibility="gone"
-        android:layout_above="@id/addsubdone"
-        android:padding="12dp"
-        android:layout_margin="16dp"
-
-        android:inputType="text" />
-
-    <!-- Button for Confirming New Course Addition -->
-    <Button
-        android:id="@+id/addsubdone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Done"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone"
-        android:layout_marginBottom="16dp" />
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

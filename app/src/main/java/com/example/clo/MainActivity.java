@@ -1,26 +1,18 @@
 package com.example.clo;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.clo.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,25 +20,26 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
-public class MainActivity extends AppCompatActivity {
-    boolean nightMODE;
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
-    private ActivityMainBinding binding;
 
-    // Modify courseList to hold Course objects
-    private List<Course> courseList;
+public class MainActivity extends AppCompatActivity {
+
+    private ActivityMainBinding binding;
+    private List<String> courseList;
+    private List<String> filteredCourseList;
     private RecyclerView recyclerView;
     private CourseAdapter adapter;
     private EditText searchBox;
-
-    private DatabaseReference databaseRef; // Reference to the Realtime Database
+    private DatabaseReference databaseRef;
+    private static final String TAG = "MainActivity";
+    private static final String MOCK_USER_ID = "mockUserId";
+    private List<String> subjects;
+    private FloatingActionButton saveButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,141 +47,169 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        Button addsubdone = findViewById(R.id.addsubdone);
-        // Initialize Firebase Realtime Database
+        subjects = new ArrayList<>();
+        saveButton = findViewById(R.id.saveButton);
+
+        initializeFirebase();
+        initializeViews();
+        setupRecyclerView();
+        loadCourses();
+        setupSearchListener();
+//        setupFabListener();
+
+        saveButton.setOnClickListener(view -> {
+            List<String> selectedSubjects = CourseAdapter.getSelectedSubjects();
+            if (!selectedSubjects.isEmpty()) {
+                saveSelectedSubjectsToFirebase(selectedSubjects);
+            } else {
+                Toast.makeText(MainActivity.this, "No subjects selected", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initializeFirebase() {
+        FirebaseApp.initializeApp(this);
         databaseRef = FirebaseDatabase.getInstance().getReference("category");
-        EditText add = findViewById(R.id.add);
+    }
 
-        // Initialize UI components after setContentView
-        searchBox = findViewById(R.id.search_box);
+    private void initializeViews() {
+        searchBox = binding.searchBox;
+        searchBox.setHint("Search courses...");
+    }
 
-        // Setup SharedPreferences to store theme preference
-
-        // Set an onClickListener for the switch
-
-        // Update UI elements based on the new theme
-        updateUIElements();
-
-        // Initialize RecyclerView and Adapter
-        recyclerView = findViewById(R.id.recyclerView);
+    private void setupRecyclerView() {
+        recyclerView = binding.recyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         courseList = new ArrayList<>();
-        adapter = new CourseAdapter(this ,courseList);
+        filteredCourseList = new ArrayList<>();
+        adapter = new CourseAdapter(this, filteredCourseList, CourseAdapter.getSelectedSubjects());
         recyclerView.setAdapter(adapter);
+    }
 
-        // Load courses from Realtime Database
-        loadCourses();
-
-        // Initialize search box with a TextWatcher
+    private void setupSearchListener() {
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                adapter.getFilter().filter(s);
+                filterCourses(s.toString());
             }
 
             @Override
             public void afterTextChanged(Editable s) {}
         });
-        Button btnAllCourses = findViewById(R.id.btn_all_courses);
-        btnAllCourses.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, SubjectsActivity.class);
-            startActivity(intent);
-        });
-
-        // FAB action for adding a course
-        FloatingActionButton fabAddCourse = findViewById(R.id.fabAddCourse);
-        fabAddCourse.setOnClickListener(view -> {
-            // Show the EditText for input
-            add.setVisibility(View.VISIBLE);
-            addsubdone.setVisibility(View.VISIBLE);
-            // Set a listener for when the user presses Enter
-            addsubdone.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String categoryname = add.getText().toString().trim(); // Trim any extra whitespace
-                    String categorynameupper = categoryname.toUpperCase();
-                    if (!categoryname.isEmpty() && !courseList.contains(new Course(categorynameupper))) { // Check if the category name is not empty
-                        addCategory(categorynameupper); // Call the method to add the category
-                        add.setText(""); // Clear the input field after adding
-                        add.setVisibility(View.GONE); // Optionally hide the input field
-                        addsubdone.setVisibility(View.GONE);
-                    } else if(categoryname.isEmpty()) {
-                        Toast.makeText(MainActivity.this, "Category name cannot be empty", Toast.LENGTH_SHORT).show();
-                    }
-                    else     if (courseList.contains(new Course(categorynameupper))){
-                        Toast.makeText(MainActivity.this, "Course already exists", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        });
-        // Update UI elements based on initial theme
-        updateUIElements();
     }
 
+//    private void setupFabListener() {
+//        FloatingActionButton fabAddCourse = binding.fabAddCourse;
+//        EditText add = binding.add;
+//        Button addsubdone = binding.addsubdone;
+//
+//        fabAddCourse.setOnClickListener(view -> {
+//            add.setVisibility(View.VISIBLE);
+//            addsubdone.setVisibility(View.VISIBLE);
+//            add.requestFocus();
+//        });
+//
+//        addsubdone.setOnClickListener(view -> {
+//            String categoryname = add.getText().toString().trim();
+//            String categorynameupper = categoryname.toUpperCase();
+//
+//            if (categoryname.isEmpty()) {
+//                add.setError("Category name cannot be empty");
+//                return;
+//            }
+//
+//            if (courseList.contains(categorynameupper)) {
+//                add.setError("Course already exists");
+//                return;
+//            }
+//
+//            addCategory(categorynameupper);
+//            add.setText("");
+//            add.setVisibility(View.GONE);
+//            addsubdone.setVisibility(View.GONE);
+//        });
+//    }
+
     private void loadCourses() {
-        // Assuming the mockUserId is already available
-        String mockUserId = "mockUserId"; // Replace with actual logic to get the user ID
-
-        // Database reference pointing to the user's selectedSubjects
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(mockUserId).child("selectedSubjects");
-
-        userRef.addValueEventListener(new ValueEventListener() {
+        databaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                courseList.clear(); // Clear the existing list
-                for (DataSnapshot subjectSnapshot : dataSnapshot.getChildren()) {
-                    String subject = subjectSnapshot.getValue(String.class); // Assuming subject is a string
-                    if (subject != null) {
-                        courseList.add(new Course(subject)); // Add to the course list
-                        Log.d("SubjectName", "Retrieved: " + subject); // Log the subject name
+                courseList.clear();
+                filteredCourseList.clear();
+
+                for (DataSnapshot categorySnapshot : dataSnapshot.getChildren()) {
+                    String categoryName = categorySnapshot.getKey();
+                    if (categoryName != null) {
+                        courseList.add(categoryName);
+                        filteredCourseList.add(categoryName);
+                        Log.d(TAG, "Retrieved category: " + categoryName);
                     }
                 }
-                adapter.notifyDataSetChanged(); // Notify adapter of data change
+                adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(MainActivity.this, "Error getting data: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Database error: " + databaseError.getMessage());
+                Toast.makeText(MainActivity.this,
+                        "Failed to load courses: " + databaseError.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-
-    private void updateUIElements() {
-        // Update EditText colors based on night mode
-        if (nightMODE) {
-            searchBox.setTextColor(getResources().getColor(R.color.white));
-        } else {
-            searchBox.setTextColor(getResources().getColor(R.color.black));
-        }
     }
 
     private void addCategory(String categoryName) {
         String[] insideCategory = {"qp", "links", "Study materials", "Books"};
         DatabaseReference subjectRef = databaseRef.child(categoryName);
 
-        if (categoryName != null) {
-            // List to hold the tasks
-            List<Task<Void>> tasks = new ArrayList<>();
-
-            // Loop through each inside category
-            for (String s : insideCategory) {
-                // Add each setValue task to the list
-                Task<Void> task = subjectRef.child(s).setValue("pending");
-                tasks.add(task);
-            }
-
-            // Add a listener for when all tasks are complete
-            Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "Submitted successfully!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, "Some submissions failed.", Toast.LENGTH_SHORT).show();
-                }
-            });
+        List<Task<Void>> tasks = new ArrayList<>();
+        for (String s : insideCategory) {
+            Task<Void> task = subjectRef.child(s).setValue("");
+            tasks.add(task);
         }
+
+        Tasks.whenAllComplete(tasks)
+                .addOnSuccessListener(taskSnapshots -> {
+                    Toast.makeText(MainActivity.this,
+                            "Course added successfully!",
+                            Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error adding course: " + e.getMessage());
+                    Toast.makeText(MainActivity.this,
+                            "Failed to add course: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void filterCourses(String query) {
+        filteredCourseList.clear();
+        if (query.isEmpty()) {
+            filteredCourseList.addAll(courseList);
+        } else {
+            String lowerCaseQuery = query.toLowerCase();
+            for (String course : courseList) {
+                if (course.toLowerCase().contains(lowerCaseQuery)) {
+                    filteredCourseList.add(course);
+                }
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    private void saveSelectedSubjectsToFirebase(List<String> selectedSubjects) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(MOCK_USER_ID).child("selectedSubjects");
+
+        userRef.setValue(selectedSubjects)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(MainActivity.this, "Subjects saved successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Error saving subjects", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }
