@@ -30,99 +30,133 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-
-    // Sample data for RecyclerView
     private List<String> courseList;
+    private List<String> filteredCourseList;
     private RecyclerView recyclerView;
     private CourseAdapter adapter;
     private EditText searchBox;
-    private DatabaseReference databaseRef; // Reference to the Realtime Database
+    private DatabaseReference databaseRef;
+    private static final String TAG = "MainActivity";
+    private static final String MOCK_USER_ID = "mockUserId";
+    private List<String> subjects;
+    private FloatingActionButton saveButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        if (FirebaseApp.getApps(this).isEmpty()) {
-            FirebaseApp.initializeApp(this);
-        }
 
-        // Initialize Firebase Realtime Database
+        subjects = new ArrayList<>();
+        saveButton = findViewById(R.id.saveButton);
+
+        initializeFirebase();
+        initializeViews();
+        setupRecyclerView();
+        loadCourses();
+        setupSearchListener();
+//        setupFabListener();
+
+        saveButton.setOnClickListener(view -> {
+            List<String> selectedSubjects = CourseAdapter.getSelectedSubjects();
+            if (!selectedSubjects.isEmpty()) {
+                saveSelectedSubjectsToFirebase(selectedSubjects);
+            } else {
+                Toast.makeText(MainActivity.this, "No subjects selected", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initializeFirebase() {
+        FirebaseApp.initializeApp(this);
         databaseRef = FirebaseDatabase.getInstance().getReference("category");
+    }
 
-        // Initialize UI components after setContentView
-        searchBox = findViewById(R.id.search_box);
-        Button addsubdone = findViewById(R.id.addsubdone);
-        EditText add = findViewById(R.id.add);
+    private void initializeViews() {
+        searchBox = binding.searchBox;
+        searchBox.setHint("Search courses...");
+    }
 
-        // Initialize RecyclerView and Adapter
-        recyclerView = findViewById(R.id.recyclerView);
+    private void setupRecyclerView() {
+        recyclerView = binding.recyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         courseList = new ArrayList<>();
-        adapter = new CourseAdapter(this, courseList);
+        filteredCourseList = new ArrayList<>();
+        adapter = new CourseAdapter(this, filteredCourseList, CourseAdapter.getSelectedSubjects());
         recyclerView.setAdapter(adapter);
+    }
 
-        // Load courses from Realtime Database
-        loadCourses();
-
-        // Initialize search box with a TextWatcher
+    private void setupSearchListener() {
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Optionally filter the course list if needed
+                filterCourses(s.toString());
             }
 
             @Override
             public void afterTextChanged(Editable s) {}
         });
-
-        // FAB action for adding a course
-        FloatingActionButton fabAddCourse = findViewById(R.id.fabAddCourse);
-        fabAddCourse.setOnClickListener(view -> {
-            // Show the EditText for input
-            add.setVisibility(View.VISIBLE);
-            addsubdone.setVisibility(View.VISIBLE);
-
-            // Set a listener for when the user presses Enter
-            addsubdone.setOnClickListener(view1 -> {
-                String categoryname = add.getText().toString().trim(); // Trim any extra whitespace
-                String categorynameupper = categoryname.toUpperCase();
-                if (!categoryname.isEmpty() && !courseList.contains(categorynameupper)) { // Check if the category name is not empty
-                    addCategory(categorynameupper); // Call the method to add the category
-                    add.setText(""); // Clear the input field after adding
-                    add.setVisibility(View.GONE); // Optionally hide the input field
-                    addsubdone.setVisibility(View.GONE);
-                } else if (categoryname.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Category name cannot be empty", Toast.LENGTH_SHORT).show();
-                } else if (courseList.contains(categorynameupper)) {
-                    Toast.makeText(MainActivity.this, "Course already exists", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
     }
+
+//    private void setupFabListener() {
+//        FloatingActionButton fabAddCourse = binding.fabAddCourse;
+//        EditText add = binding.add;
+//        Button addsubdone = binding.addsubdone;
+//
+//        fabAddCourse.setOnClickListener(view -> {
+//            add.setVisibility(View.VISIBLE);
+//            addsubdone.setVisibility(View.VISIBLE);
+//            add.requestFocus();
+//        });
+//
+//        addsubdone.setOnClickListener(view -> {
+//            String categoryname = add.getText().toString().trim();
+//            String categorynameupper = categoryname.toUpperCase();
+//
+//            if (categoryname.isEmpty()) {
+//                add.setError("Category name cannot be empty");
+//                return;
+//            }
+//
+//            if (courseList.contains(categorynameupper)) {
+//                add.setError("Course already exists");
+//                return;
+//            }
+//
+//            addCategory(categorynameupper);
+//            add.setText("");
+//            add.setVisibility(View.GONE);
+//            addsubdone.setVisibility(View.GONE);
+//        });
+//    }
 
     private void loadCourses() {
         databaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                courseList.clear(); // Clear existing course list
+                courseList.clear();
+                filteredCourseList.clear();
+
                 for (DataSnapshot categorySnapshot : dataSnapshot.getChildren()) {
-                    // Get the category name
                     String categoryName = categorySnapshot.getKey();
                     if (categoryName != null) {
                         courseList.add(categoryName);
-                        Log.d("CategoryName", "Retrieved: " + categoryName); // Log category name
+                        filteredCourseList.add(categoryName);
+                        Log.d(TAG, "Retrieved category: " + categoryName);
                     }
                 }
-                adapter.notifyDataSetChanged(); // Notify the adapter of data changes
+                adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(MainActivity.this, "Error getting documents: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Database error: " + databaseError.getMessage());
+                Toast.makeText(MainActivity.this,
+                        "Failed to load courses: " + databaseError.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -131,25 +165,51 @@ public class MainActivity extends AppCompatActivity {
         String[] insideCategory = {"qp", "links", "Study materials", "Books"};
         DatabaseReference subjectRef = databaseRef.child(categoryName);
 
-        if (categoryName != null) {
-            // List to hold the tasks
-            List<Task<Void>> tasks = new ArrayList<>();
-
-            // Loop through each inside category
-            for (String s : insideCategory) {
-                // Add each setValue task to the list
-                Task<Void> task = subjectRef.child(s).setValue("pending");
-                tasks.add(task);
-            }
-
-            // Add a listener for when all tasks are complete
-            Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "Submitted successfully!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, "Some submissions failed.", Toast.LENGTH_SHORT).show();
-                }
-            });
+        List<Task<Void>> tasks = new ArrayList<>();
+        for (String s : insideCategory) {
+            Task<Void> task = subjectRef.child(s).setValue("");
+            tasks.add(task);
         }
+
+        Tasks.whenAllComplete(tasks)
+                .addOnSuccessListener(taskSnapshots -> {
+                    Toast.makeText(MainActivity.this,
+                            "Course added successfully!",
+                            Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error adding course: " + e.getMessage());
+                    Toast.makeText(MainActivity.this,
+                            "Failed to add course: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void filterCourses(String query) {
+        filteredCourseList.clear();
+        if (query.isEmpty()) {
+            filteredCourseList.addAll(courseList);
+        } else {
+            String lowerCaseQuery = query.toLowerCase();
+            for (String course : courseList) {
+                if (course.toLowerCase().contains(lowerCaseQuery)) {
+                    filteredCourseList.add(course);
+                }
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    private void saveSelectedSubjectsToFirebase(List<String> selectedSubjects) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(MOCK_USER_ID).child("selectedSubjects");
+
+        userRef.setValue(selectedSubjects)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(MainActivity.this, "Subjects saved successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Error saving subjects", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

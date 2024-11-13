@@ -12,4 +12,20 @@
     <color name="text_color">#000000</color> <!-- Black for bright mode -->
     <color name="background_color">#FFFFFF</color>
     <color name="background_bright">#FFFFFF</color>
+
+        <!-- Add these to your existing colors.xml -->
+        <color name="chip_active">#4CAF50</color>
+        <color name="chip_pending">#FFC107</color>
+        <color name="chip_inactive">#9E9E9E</color>
+    <array name="course_colors">
+        <item>#1976D2</item>
+        <item>#388E3C</item>
+        <item>#D32F2F</item>
+        <item>#7B1FA2</item>
+        <item>#FFA000</item>
+        <item>#0097A7</item>
+        <item>#C2185B</item>
+        <item>#689F38</item>
+    </array>
+
 </resources>
