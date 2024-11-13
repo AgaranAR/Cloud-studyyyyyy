@@ -1,78 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".upload_file">
 
-    <!-- Title for the page -->
-    <TextView
-        android:id="@+id/upload_title"
+    <!-- Category Selection (Pop-up) -->
+    <Button
+        android:id="@+id/selectCategoryButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Upload File"
-        android:textSize="24sp"
-        android:layout_gravity="center_horizontal"
-        android:paddingBottom="24dp" />
+        android:text="Select Category"
+        android:layout_marginTop="50dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- File name input field -->
+    <!-- Subject Name Input -->
     <EditText
-        android:id="@+id/file_name"
-        android:layout_width="match_parent"
+        android:id="@+id/subjectNameEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Subject Name"
+        app:layout_constraintTop_toBottomOf="@id/selectCategoryButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp"/>
+
+    <!-- File Name Input -->
+    <EditText
+        android:id="@+id/fileNameEditText"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="File Name"
-        android:textColor="@color/black"
-        android:inputType="text"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp"
-        android:background="@android:drawable/editbox_background" />
+        app:layout_constraintTop_toBottomOf="@id/subjectNameEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp"/>
 
-    <!-- Author name input field -->
-    <EditText
-        android:id="@+id/author_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Author Name"
-        android:textColor="@color/black"
-        android:inputType="text"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp"
-        android:background="@android:drawable/editbox_background" />
-
-    <!-- Button to choose file -->
+    <!-- File Picker Button -->
     <Button
-        android:id="@+id/choose_file_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choose File"
-        android:layout_marginBottom="16dp" />
-
-    <!-- TextView to display selected file path -->
-    <TextView
-        android:id="@+id/file_path_display"
+        android:id="@+id/selectFileButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No file chosen"
-        android:textSize="16sp"
-        android:layout_marginBottom="24dp" />
+        android:text="Choose File"
+        app:layout_constraintTop_toBottomOf="@id/fileNameEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp"/>
 
-    <!-- Upload button -->
-    <ProgressBar
-        android:id="@+id/upload_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
+    <!-- Display Selected File URI -->
+    <TextView
+        android:id="@+id/selectedFileUriTextView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:visibility="gone" />
+        android:text="Selected file URI will appear here"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/selectFileButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Upload Button -->
     <Button
-        android:id="@+id/upload_button"
-        android:layout_width="match_parent"
+        android:id="@+id/uploadButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Upload"
-        />
+        app:layout_constraintTop_toBottomOf="@id/selectedFileUriTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp" />
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
 
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
