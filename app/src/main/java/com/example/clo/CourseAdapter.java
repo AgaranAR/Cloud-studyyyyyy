@@ -1,79 +1,63 @@
 package com.example.clo;
 
 import android.content.Context;
-import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.CheckBox;
-
-import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.List;
 
 public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseViewHolder> {
 
-    private final Context context;
-    private OnCourseClickListener courseClickListener;
-    private static List<String> selectedSubjects;
-    private static List<String> courseList;
+    private Context context;
+    private List<Course> courseList;
 
-    public interface OnCourseClickListener {
-        void onCourseClick(String courseName, int position);
-        void onCourseOptionsClick(String courseName, int position, View anchor);
-    }
-
-    public CourseAdapter(Context context, List<String> courseList, List<String> selectedSubjects) {
+    // Constructor
+    public CourseAdapter(Context context, List<Course> courseList) {
         this.context = context;
         this.courseList = courseList;
-        this.selectedSubjects = selectedSubjects != null ? selectedSubjects : new ArrayList<>();
     }
 
-    public void setOnCourseClickListener(OnCourseClickListener listener) {
-        this.courseClickListener = listener;
-    }
-
-    @NonNull
     @Override
-    public CourseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CourseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.course_item, parent, false);
         return new CourseViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
-        String courseName = courseList.get(position);
-        holder.courseName.setText(courseName);
-        holder.checkBox.setChecked(selectedSubjects.contains(courseName));
+    public void onBindViewHolder(CourseViewHolder holder, int position) {
+        Course course = courseList.get(position);
+        holder.courseName.setText(course.getName());
 
-        String firstLetter = courseName.substring(0, 1).toUpperCase();
-        holder.courseIcon.setText(firstLetter);
-
-        int[] colors = context.getResources().getIntArray(R.array.course_colors);
-        int colorIndex = position % colors.length;
-        holder.courseIcon.setBackgroundTintList(android.content.res.ColorStateList.valueOf(colors[colorIndex]));
-
-        holder.courseCard.setOnClickListener(v -> {
-            Intent intent = new Intent(context, SubdivisionsActivity.class);
-            intent.putExtra("categoryName", courseName);
-            context.startActivity(intent);
-
-            if (courseClickListener != null) {
-                courseClickListener.onCourseClick(courseName, position);
-            }
+        // Handle the 3 dots menu for each course
+        holder.menuButton.setOnClickListener(v -> {
+            PopupMenu popupMenu = new PopupMenu(context, v);
+            popupMenu.inflate(R.menu.course_menu);  // Inflate the menu
+            popupMenu.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == R.id.menu_delete) {
+                    // Handle delete action here
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    String userId = (user != null) ? user.getUid() : "mockUserId";  // Use userId or "mockUserId" if user is null
+                    deleteCourse(userId, course);  // Call deleteCourse with userId and course as arguments
+                    return true;
+                }
+                return false;
+            });
+            popupMenu.show();
         });
 
-        holder.optionsButton.setOnClickListener(v -> {
-            if (courseClickListener != null) {
-                courseClickListener.onCourseOptionsClick(courseName, position, v);
-            }
-        });
     }
 
     @Override
@@ -81,35 +65,44 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         return courseList.size();
     }
 
-    public static List<String> getSelectedSubjects() {
-        return selectedSubjects;
+    // Method to delete course by name from Firebase and update local list
+    private void deleteCourse(String userId, Course course) {
+        String courseName = course.getName();
+
+        // Reference to the user's selectedSubjects node in the database
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users")
+                .child(userId)
+                .child("selectedSubjects");
+
+        // Find and remove the course from Firebase
+        userRef.orderByValue().equalTo(courseName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    snapshot.getRef().removeValue();  // Remove course from Firebase
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("CourseAdapter", "Error removing course: " + databaseError.getMessage());
+            }
+        });
+
+        // Remove the course from the local list and update RecyclerView
+        courseList.remove(course);
+        notifyDataSetChanged();
     }
 
-    public class CourseViewHolder extends RecyclerView.ViewHolder {
-        TextView courseName, courseIcon;
-        CheckBox checkBox;
-        ImageView optionsButton;
-        CardView courseCard;
-        LinearLayout courseLayout;
+    public static class CourseViewHolder extends RecyclerView.ViewHolder {
 
-        public CourseViewHolder(@NonNull View itemView) {
+        TextView courseName;
+        View menuButton;
+
+        public CourseViewHolder(View itemView) {
             super(itemView);
-            courseName = itemView.findViewById(R.id.courseNameTextView);
-            courseIcon = itemView.findViewById(R.id.courseIconText);
-            optionsButton = itemView.findViewById(R.id.courseOptionsButton);
-            courseCard = itemView.findViewById(R.id.courseCard);
-            checkBox = itemView.findViewById(R.id.checkbox);
-
-            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                String courseName = courseList.get(getAdapterPosition());
-                if (isChecked) {
-                    if (!selectedSubjects.contains(courseName)) {
-                        selectedSubjects.add(courseName);
-                    }
-                } else {
-                    selectedSubjects.remove(courseName);
-                }
-            });
+            courseName = itemView.findViewById(R.id.course_name);
+            menuButton = itemView.findViewById(R.id.menu_button);  // Assuming you have a 3-dot button
         }
     }
 }

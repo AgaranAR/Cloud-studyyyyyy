@@ -34,9 +34,7 @@ public class CourseSelectionActivity extends AppCompatActivity {
 
         // Initialize the course list (this could be from Firebase or a local list)
         allCourses = new ArrayList<>();
-        allCourses.add("Course 1");
-        allCourses.add("Course 2");
-        allCourses.add("Course 3");
+
         // Add more courses as needed
 
         // Initialize Firebase
